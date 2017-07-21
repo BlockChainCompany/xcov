@@ -41,12 +41,26 @@ module Xcov
             }
           end
         end
+    
+        branch = ENV.fetch("GIT_BRANCH", `git log -1 --pretty=format:'%D'`)
+        branch = branch.split("->").last.split(",").first.strip
 
         json = {
           service_job_id: Xcov.config[:coveralls_service_job_id],
           service_name: Xcov.config[:coveralls_service_name],
           repo_token: Xcov.config[:coveralls_repo_token],
-          source_files: source_files
+          source_files: source_files,
+          git: {
+            head: {
+              id: ENV.fetch("GIT_ID", `git log -1 --pretty=format:'%H'`),
+              author_name: ENV.fetch("GIT_AUTHOR_NAME", `git log -1 --pretty=format:'%aN'`),
+              author_email: ENV.fetch("GIT_AUTHOR_EMAIL", `git log -1 --pretty=format:'%ae'`),
+              committer_name: ENV.fetch("GIT_COMMITTER_NAME", `git log -1 --pretty=format:'%cN'`),
+              committer_email: ENV.fetch("GIT_COMMITTER_EMAIL", `git log -1 --pretty=format:'%ce'`),
+              message: ENV.fetch("GIT_MESSAGE", `git log -1 --pretty=format:'%s'`)
+              },
+            branch: branch
+            }
         }
 
         require "json"
